@@ -29,8 +29,8 @@ public class Task {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY )
     private Long id;
-    @Column(name = "task_text")
 
+    @Column(name = "task_text")
     private String text;
     
     @Column(name = "task_day")

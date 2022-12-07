@@ -75,6 +75,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>task-tracker-rest-${project.version}</finalName>
 	</build>
 
 </project>

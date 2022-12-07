@@ -19,6 +19,12 @@
 
 --
 
+## Swagger
+
+- [](https://swagger.io/docs/specification/media-types/)
+- [Data Types](https://swagger.io/docs/specification/data-models/data-types/)
+
+
 ## Getting Started
 
 ### Reference Documentation
@@ -39,3 +45,4 @@ The following guides illustrate how to use some features concretely:
 * [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
 * [Validation](https://spring.io/guides/gs/validating-form-input/)
 * [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
+

@@ -37,6 +37,15 @@ public class TaskController {
                 .body( taskService.saveTask(newTask)  );
     }
 
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Task> findTaskById( @PathVariable Long id ){
+        return taskService.findTaskById(id)
+            .map( task -> ResponseEntity.status(HttpStatus.OK).body(task)  )
+            .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build() );
+    }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask( @PathVariable Long id ){
         if(  taskService.deleteTask(id) ){
