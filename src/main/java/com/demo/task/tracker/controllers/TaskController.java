@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.demo.task.tracker.dto.NewTaskDto;
 import com.demo.task.tracker.dto.TaskDto;
 import com.demo.task.tracker.services.TaskService;
 
@@ -32,7 +31,7 @@ public class TaskController {
     }
 
     @PostMapping()
-    public ResponseEntity<TaskDto> postTask(  @RequestBody NewTaskDto newTask ){
+    public ResponseEntity<TaskDto> postTask(  @RequestBody TaskDto newTask ){
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body( taskService.saveTask(newTask)  );

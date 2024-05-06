@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.demo.task.tracker.dto.NewTaskDto;
 import com.demo.task.tracker.dto.TaskDto;
 import com.demo.task.tracker.models.Task;
 import com.demo.task.tracker.repositories.TaskRepository;
@@ -18,71 +17,44 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class TaskService {
 
-        private final TaskRepository taskRepository;     
-
-        /*private TaskDto taskToDtoMapper(Task input) {
-                Function<Task, TaskDto> mapper = task -> new TaskDto(
-                                task.getId(),
-                                task.getText(),
-                                task.getDay(),
-                                task.getReminder());
-
-                return mapper.apply(input);
-        }*/
+        private final TaskRepository taskRepository;
 
         private static Function<Task, TaskDto> taskToDtoMapper = task -> new TaskDto(
-                task.getId(),
-                task.getText(),
-                task.getDay(),
-                task.getReminder());
+                        task.getId(),
+                        task.getText(),
+                        task.getDay(),
+                        task.getReminder());
 
-
-
-        /*private Task dtoToTaskMapper(TaskDto input) {
-                Function<TaskDto, Task> mapper = dto -> Task
-                                .builder()
-                                .day(dto.day())
-                                .text(dto.text())
-                                .id(dto.id())
-                                .reminder(dto.reminder())
-                                .build();
-
-                return mapper.apply(input);
-
-        }*/
-
-        private static Function<TaskDto, Task>  dtoToTaskMapper = dto -> Task
-                                .builder()
-                                .day(dto.day())
-                                .text(dto.text())
-                                .id(dto.id())
-                                .reminder(dto.reminder())
-                                .build();
+        private static Function<TaskDto, Task> dtoToTaskMapper = dto -> Task
+                        .builder()
+                        .day(dto.day())
+                        .text(dto.text())
+                        .id(dto.id())
+                        .reminder(dto.reminder())
+                        .build();
 
         public List<TaskDto> getAllTask() {
                 return taskRepository
                                 .findAll()
                                 .stream()
-                                .map(taskToDtoMapper )
+                                .map(taskToDtoMapper)
                                 .collect(Collectors.toList());
         }
 
-        public TaskDto saveTask(NewTaskDto newTask) {
-                Task persistTask = new Task();
-                persistTask.setDay(newTask.day());
-                persistTask.setText(newTask.text());
-                persistTask.setReminder(false);
-                taskRepository.save(persistTask);
-                return taskToDtoMapper.apply(persistTask);
+        public TaskDto saveTask(TaskDto newTask) {
+                Task taskToPersist = dtoToTaskMapper.apply(newTask);
+                taskToPersist.setId(null);
+                taskRepository.save(taskToPersist);
+                return taskToDtoMapper.apply(taskToPersist);
         }
 
         private Optional<Task> findTaskById(Long id) {
-                return taskRepository.findById(id);                                
+                return taskRepository.findById(id);
         }
 
         public Optional<TaskDto> findTaskDtoById(Long id) {
                 return findTaskById(id)
-                        .map(taskToDtoMapper);
+                                .map(taskToDtoMapper);
         }
 
         public boolean deleteTask(Long id) {
@@ -94,13 +66,14 @@ public class TaskService {
                                 .orElse(false);
         }
 
-        public Optional<TaskDto> updateTask(Long id, TaskDto updatedTask) {
+        public Optional<TaskDto> updateTask(Long id, TaskDto updatedTaskDto) {
                 return findTaskById(id)
-                        .map(item ->{
-                           Task task = dtoToTaskMapper.apply(updatedTask);    
-                           return taskRepository.save( task );     
-                        })
-                        .map(taskToDtoMapper);
+                                .map( taskFound -> {
+                                        Task taskToPersist = dtoToTaskMapper.apply(updatedTaskDto);
+                                        taskToPersist.setId(id);
+                                        return taskRepository.save(taskToPersist);
+                                })
+                                .map(taskToDtoMapper);
 
         }
 }
