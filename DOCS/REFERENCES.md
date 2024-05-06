@@ -3,6 +3,9 @@
 ## Project Refernces
 
 
+### H2
+- [](https://www.baeldung.com/spring-boot-h2-database)
+
 ### Cors
 - [](https://spring.io/guides/gs/rest-service-cors/)
 - [](https://www.baeldung.com/spring-cors)

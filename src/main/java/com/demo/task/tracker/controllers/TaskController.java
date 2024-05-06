@@ -41,7 +41,7 @@ public class TaskController {
 
     @GetMapping("/{id}")
     public ResponseEntity<TaskDto> findTaskById( @PathVariable Long id ){
-        return taskService.findTaskById(id)
+        return taskService.findTaskDtoById(id)
             .map( task -> ResponseEntity.status(HttpStatus.OK).body(task)  )
             .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build() );
     }

@@ -20,7 +20,7 @@ public class TaskService {
 
         private final TaskRepository taskRepository;     
 
-        private TaskDto taskToDtoMapper(Task input) {
+        /*private TaskDto taskToDtoMapper(Task input) {
                 Function<Task, TaskDto> mapper = task -> new TaskDto(
                                 task.getId(),
                                 task.getText(),
@@ -28,9 +28,17 @@ public class TaskService {
                                 task.getReminder());
 
                 return mapper.apply(input);
-        }
+        }*/
 
-        private Task dtoToTaskMapper(TaskDto input) {
+        private static Function<Task, TaskDto> taskToDtoMapper = task -> new TaskDto(
+                task.getId(),
+                task.getText(),
+                task.getDay(),
+                task.getReminder());
+
+
+
+        /*private Task dtoToTaskMapper(TaskDto input) {
                 Function<TaskDto, Task> mapper = dto -> Task
                                 .builder()
                                 .day(dto.day())
@@ -41,13 +49,21 @@ public class TaskService {
 
                 return mapper.apply(input);
 
-        }
+        }*/
+
+        private static Function<TaskDto, Task>  dtoToTaskMapper = dto -> Task
+                                .builder()
+                                .day(dto.day())
+                                .text(dto.text())
+                                .id(dto.id())
+                                .reminder(dto.reminder())
+                                .build();
 
         public List<TaskDto> getAllTask() {
                 return taskRepository
                                 .findAll()
                                 .stream()
-                                .map(this::taskToDtoMapper )
+                                .map(taskToDtoMapper )
                                 .collect(Collectors.toList());
         }
 
@@ -57,13 +73,16 @@ public class TaskService {
                 persistTask.setText(newTask.text());
                 persistTask.setReminder(false);
                 taskRepository.save(persistTask);
-                return taskToDtoMapper(persistTask);
+                return taskToDtoMapper.apply(persistTask);
         }
 
-        public Optional<TaskDto> findTaskById(Long id) {
-                return taskRepository
-                                .findById(id)
-                                .map(this::taskToDtoMapper);
+        private Optional<Task> findTaskById(Long id) {
+                return taskRepository.findById(id);                                
+        }
+
+        public Optional<TaskDto> findTaskDtoById(Long id) {
+                return findTaskById(id)
+                        .map(taskToDtoMapper);
         }
 
         public boolean deleteTask(Long id) {
@@ -77,9 +96,11 @@ public class TaskService {
 
         public Optional<TaskDto> updateTask(Long id, TaskDto updatedTask) {
                 return findTaskById(id)
-                                .map(taskDto -> dtoToTaskMapper(updatedTask))
-                                .map(taskRepository::save)
-                                .map(this::taskToDtoMapper);
-        }
+                        .map(item ->{
+                           Task task = dtoToTaskMapper.apply(updatedTask);    
+                           return taskRepository.save( task );     
+                        })
+                        .map(taskToDtoMapper);
 
+        }
 }
