@@ -2,20 +2,33 @@
 
 ## Project Refernces
 
--[Project from Spring Initializer](https://start.spring.io/#!type=maven-project&language=java&platformVersion=2.7.4&packaging=jar&jvmVersion=17&groupId=com.demo.task.tracker&artifactId=springboot-task-tracker-h2-api&name=Task-tracker&description=Task%20Tracker%20API%20with%20Spring%20Boot%20and%20H2%20Database&packageName=com.demo.task.tracker&dependencies=web,validation,lombok,data-jpa,h2)
 
+### H2
+- [](https://www.baeldung.com/spring-boot-h2-database)
 
+### Cors
 - [](https://spring.io/guides/gs/rest-service-cors/)
-
 - [](https://www.baeldung.com/spring-cors)
-
 - [](https://www.demo2s.com/java/spring-corsregistry-addmapping-string-pathpattern.html)
 
+
+### Spring Annotations
 - [](https://codingnconcepts.com/spring-boot/spring-value-annotation/)
 
+### Java 8
 - [](https://www.programmergirl.com/convert-list-array-java)
-
 - [](https://www.javatpoint.com/how-to-convert-string-to-string-array-in-java)
+- [Functional Interfaces in Java 8](https://www.baeldung.com/java-8-functional-interfaces)
+- [Function Interface in Java with Examples](https://www.geeksforgeeks.org/function-interface-in-java-with-examples/)
+
+
+### Solving issues
+- [How do I update an entity using spring-data-jpa?](https://stackoverflow.com/questions/11881479/how-do-i-update-an-entity-using-spring-data-jpa)
+- [Default values for record properties](https://stackoverflow.com/questions/73646644/default-values-for-record-properties)
+- [Best way to check for null values in Java?](https://stackoverflow.com/questions/17302256/best-way-to-check-for-null-values-in-java)
+
+### Java API
+- [Class Record](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Record.html#:%7E:text=For%20all%20record,equals(copy).)
 
 --
 
