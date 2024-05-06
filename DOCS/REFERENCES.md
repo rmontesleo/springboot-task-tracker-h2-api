@@ -22,6 +22,13 @@
 - [Function Interface in Java with Examples](https://www.geeksforgeeks.org/function-interface-in-java-with-examples/)
 
 
+### Solving issues
+- [How do I update an entity using spring-data-jpa?](https://stackoverflow.com/questions/11881479/how-do-i-update-an-entity-using-spring-data-jpa)
+- [Default values for record properties](https://stackoverflow.com/questions/73646644/default-values-for-record-properties)
+- [Best way to check for null values in Java?](https://stackoverflow.com/questions/17302256/best-way-to-check-for-null-values-in-java)
+
+### Java API
+- [Class Record](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Record.html#:%7E:text=For%20all%20record,equals(copy).)
 
 --
 
