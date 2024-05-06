@@ -1,6 +1,21 @@
 
 
 
+```bash
+
+# SAST
+snyk code test -d --sarif-file-output=snyk-sast.sari
+
+# SCA
+snyk test -d --sarif-file-output=snyk-sca.sarif
+
+# Monitor your organization project
+snyk monitor  --project-name=springboot-task-tracker-h2-api --org=$PROJECT_ORGANIZATION
+
+```
+
+
+
 - [Snyk Code security rules](https://docs.snyk.io/scan-with-snyk/snyk-code/snyk-code-security-rules)
 
 ### Issues
