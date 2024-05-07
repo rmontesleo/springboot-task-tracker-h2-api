@@ -1,8 +1,14 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+### Env Files ###
+.env
+
+### Security files ###
+*.sarif
+
+
+
+
+### OTHER FILES ###
+.dccache
 
 ### STS ###
 .apt_generated
@@ -32,5 +38,9 @@ build/
 ### VS Code ###
 .vscode/
 
-
-.env
+### Initial Help file and some other items about target ###
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
