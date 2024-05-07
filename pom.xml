@@ -25,11 +25,7 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!--TODO: Remove this dependency after migration is done -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
+		
 
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
