@@ -17,10 +17,12 @@ import com.demo.task.tracker.dto.TaskDto;
 import com.demo.task.tracker.services.TaskService;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/tasks")
 @AllArgsConstructor
+@Slf4j
 public class TaskController {
 
     private final TaskService taskService;

@@ -4,7 +4,7 @@
 ```bash
 
 # SAST
-snyk code test -d --sarif-file-output=snyk-sast.sari
+snyk code test -d --sarif-file-output=snyk-sast.sarif
 
 # SCA
 snyk test -d --sarif-file-output=snyk-sca.sarif
