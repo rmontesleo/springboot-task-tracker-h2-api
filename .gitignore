@@ -4,9 +4,6 @@
 ### Security files ###
 *.sarif
 
-
-
-
 ### OTHER FILES ###
 .dccache
 
