@@ -1,4 +1,7 @@
 ### Env Files ###
+bin
+
+### Env Files ###
 .env
 
 ### Security files ###

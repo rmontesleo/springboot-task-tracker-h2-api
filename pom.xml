@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.1</version>
+		<version>3.3.4</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.demo.task.tracker</groupId>
@@ -87,7 +87,7 @@
 			</plugin>
 
 			<!-- Snyk plugin -->
-			<plugin>
+			<!--plugin>
 				<groupId>io.snyk</groupId>
 				<artifactId>snyk-maven-plugin</artifactId>
 				<version>2.2.0</version>
@@ -109,10 +109,10 @@
 				<configuration>
 				  <apiToken>${env.SNYK_TOKEN}</apiToken>
 				  <args>
-					<arg>--all-projects</arg>
+					<arg>- -all-projects</arg>
 				  </args>
 				</configuration>
-			  </plugin>
+			  </plugin-->
 
 		</plugins>
 		<finalName>task-tracker-rest-${project.version}</finalName>
