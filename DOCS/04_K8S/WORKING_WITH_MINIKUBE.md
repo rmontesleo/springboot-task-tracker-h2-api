@@ -408,10 +408,3 @@ kubectl run task-api-pod --image=rmontesleo/springboot-todo-h2-api-k8s:v1 -n dem
 
 
 
-
----
-
-## References
-
-- [Namespaces Walkthrough](https://kubernetes.io/docs/tasks/administer-cluster/namespaces-walkthrough/)
-- [How to create K8S deployment in specific namespace?](https://stackoverflow.com/questions/59261894/how-to-create-k8s-deployment-in-specific-namespace)

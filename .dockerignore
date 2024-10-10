@@ -3,11 +3,20 @@
 .idea/
 .vs/
 
+#
+deployment/
+
 # Avoid docker folder with samples of other docker files
 docker/
 
 # Avoid documentation
 DOCS/
+
+# Kubernetes
+k8s/
+
+# 
+setup/
 
 #
 target/
