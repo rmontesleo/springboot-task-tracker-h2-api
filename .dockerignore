@@ -1,0 +1,39 @@
+# Avoid editor settings
+.vscode/
+.idea/
+.vs/
+
+#
+deployment/
+
+# Avoid docker folder with samples of other docker files
+docker/
+
+# Avoid documentation
+DOCS/
+
+# Kubernetes
+k8s/
+
+# 
+setup/
+
+#
+target/
+
+#
+.env
+.env_variables
+
+#
+.dockerignore
+docker-compose.yaml
+Dockerfile
+
+#
+.git/
+.gitgionre
+
+#
+LICENSE
+README.md
