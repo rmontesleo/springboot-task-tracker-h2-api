@@ -1,0 +1,82 @@
+name: JFrog CI Demo
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  # Define common environment variables
+  JAVA_VERSION: 17
+  PROJECT_NAME: 'springboot-task-tracker-h2-api'
+  DOCKERFILE_PATH: 'docker/Dockerfile'          
+
+jobs:
+  # Job 1: Build jar, Docker Image and execute Unit Tests
+  build_and_test:
+    runs-on: ubuntu-latest
+    outputs:
+      jaf_file_name: ${{ steps.get-jar-name.outputs.jar_name }}
+      #docker_image_tag: ${{ steps.build-image.outputs.tag }}
+      project_version: ${{ steps.get-version.outputs.project_version }}
+
+    steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
+        
+        - name: Set up Java ${{ env.JAVA_VERSION }}
+          uses: actions/setup-java@v4
+          with:
+              distribution: 'temurin'
+              java-version: ${{ env.JAVA_VERSION }}
+              cache: 'maven'
+
+        - name: Get Maven Project Version
+          id: get-version
+          run: |
+            PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            echo "project_version=$PROJECTVSION" >> $GITHUB_OUTPUT
+            echo "Discovered project version: $PROJECT_VERSION"
+
+        - name: Build Maven Project and Get JAR Name
+          id: get-jar-name
+          run: |
+            mvn clean package -DskipTests #Build without test run in the next step
+            JAR_NAME=$(ls target/*.jar | head -n 1 | xargs -n 1 basename )
+            echo "jar_name=$JAR_NAME" >> "$GITHUB_OUTPUT"
+            echo "Discovered JAR name: $JAR_NAME"
+
+        - name: Execute Unit Test
+          run: mvn test
+          env:
+            MAVEN_OPTS:  -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.count=3
+
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v3
+
+        - name: Build Docker Image
+          id: build-image
+          uses: docker/build-push-action@v5
+          with:
+            context: .
+            file: ${{ env.DOCKERFILE_PATH }}
+            push: false # Only build locally
+            tags: ${{ env.PROJECT_NAME }}:${{ github.sha }}
+          
+
+        - name: Export Docker Image to Tar (for subsequent jobs)
+          run: docker save ${{ env.PROJECT_NAME }}:${{ github.sha}} -o ${{ env.PROJECT_NAME}}.tar
+
+        - name: Upload JAR Artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.PROJECT_NAME}}-jar
+            path: target/${{ steps.get-jar-name.outputs.jar_name }}
+            retention-days: 7
+
+        - name: Upload Docker Image Tarball Artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.PROJECT_NAME }}-docker-image
+            path: .
+            retention-days: 7
