@@ -19,6 +19,8 @@ snyk monitor  --project-name=springboot-task-tracker-h2-api-local-monitor --org=
 - [Environment variables for Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli/environment-variables-for-snyk-cli)
 - [Maven plugin integration with Snyk](https://docs.snyk.io/scm-ide-and-ci-cd-workflow-and-integrations/snyk-ci-cd-integrations/maven-plugin-integration-with-snyk)
 - [Snyk API token permissions users can control](https://docs.snyk.io/snyk-api/rest-api/authentication-for-api/api-token-permissions-users-can-control)
+- [Brew: Snyk](https://formulae.brew.sh/formula/snyk-cli)
+
 
 ### Issues
 - [Remote Code Execution (RCE)](https://security.snyk.io/vuln/SNYK-JAVA-COMH2DATABASE-31685)

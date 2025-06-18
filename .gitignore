@@ -3,9 +3,11 @@ bin
 
 ### Env Files ###
 .env
+**/.env
 
 ### Security files ###
 *.sarif
+**/*.sarif
 
 ### OTHER FILES ###
 .dccache

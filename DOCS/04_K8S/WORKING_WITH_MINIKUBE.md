@@ -6,7 +6,7 @@
 ### Basics operations with the pod
 ```bash
 # Create the minikube cluster, depends on your resources could change the values
-minikube start  --vm-driver=docker --memory=3g  --nodes 2
+minikube start  --vm-driver=docker --memory=3g  --nodes 3
 
 
 # Create the pod call task-api

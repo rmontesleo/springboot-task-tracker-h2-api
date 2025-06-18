@@ -2,6 +2,7 @@ FROM eclipse-temurin:17-jdk-alpine AS base
 WORKDIR /app
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
+RUN chmod +x  mvnw
 RUN ./mvnw dependency:resolve
 COPY src ./src
 
@@ -19,5 +20,5 @@ FROM eclipse-temurin:17-jre-alpine AS production
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 EXPOSE 8080
-COPY --from=build /app/target/task-tracker-docker.jar /home/spring/task-tracker-docker.jar
-ENTRYPOINT ["java", "-jar", "/home/spring/task-tracker-docker.jar" ]
+COPY --from=build /app/target/springboot-task-tracker-h2-api.jar /home/spring/springboot-task-tracker-h2-api.jar
+ENTRYPOINT ["java", "-jar", "/home/spring/springboot-task-tracker-h2-api.jar" ]

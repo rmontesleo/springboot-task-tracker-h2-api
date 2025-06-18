@@ -14,7 +14,11 @@ docker build -t  springboot-todo-h2-api-docker:0.1  .
 
 ### Create the image for production
 ```bash
-docker build --target production -t springboot-todo-h2-api-docker:v1 .
+# Build on Linux
+docker build --file=./docker/Dockerfile  --target production  -t springboot-todo-h2-api-docker:v1 .
+
+# Build on in MacOS
+docker build --file=./docker/Dockerfile  --target production --platform=linux/amd64  -t  springboot-todo-h2-api-docker:0.1  .
 ```
 
 
@@ -30,7 +34,7 @@ docker run -d -p 8080:8080 --name app01 springboot-todo-h2-api-docker:0.1
 
 ### Go inside the container
 ```bash
-docker exec -it app01 bash
+docker exec -it app01 sh
 ```
 
 ### stop your container
