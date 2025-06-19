@@ -2,6 +2,14 @@
 
 ## Project Refernces
 
+- [GitHub: build-push-action](https://github.com/docker/build-push-action)
+- [GitHub: harness migrate](https://github.com/harness/harness-migrate)
+
+- [JFrog CLI](https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli)
+- [GitHub: setup-jfrog-cli](https://github.com/jfrog/setup-jfrog-cli/tree/master)
+- [GitHub: JFrog Project examples](https://github.com/jfrog/project-examples/tree/master)
+
+
 
 ### H2
 - [](https://www.baeldung.com/spring-boot-h2-database)

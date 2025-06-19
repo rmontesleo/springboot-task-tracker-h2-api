@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.demo.task.tracker</groupId>
 	<artifactId>springboot-task-tracker-h2-api</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 	<name>Task-tracker</name>
 	<description>Task Tracker API with Spring Boot and H2 Database</description>
 	<properties>
