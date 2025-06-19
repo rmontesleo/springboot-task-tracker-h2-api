@@ -138,8 +138,10 @@ jobs:
           docker images
           docker tag ${{ needs.test_and_build.outputs.docker_image_tag }} ${{ secrets.JFROG_DEMO_REGISTRY }}/${{ env.JFROG_DOCKER_REPO}}/${{ needs.test_and_build.outputs.docker_image_tag }}
           docker tag ${{ needs.test_and_build.outputs.docker_image_tag }} ${{ secrets.JFROG_DEMO_REGISTRY }}/${{ env.JFROG_DOCKER_REPO}}/${{ env.PROJECT_NAME}}:latest
+          echo "Verifying the new tags"
+          docker images
 
-      #- name: Push Docker Image to JFrog Artifactory
-      #  run: |
-      #    docker push $ {{ secrets.JFROG_DEMO_REGISTRY }}/$ {{ env.JFROG_DOCKER_REPO}}/$ {{ env.PROJECT_NAME}}:$ {{ needs.test_and_build.outputs.docker_image_tag }}   
-      #    docker push $ {{ secrets.JFROG_DEMO_REGISTRY }}/$ {{ env.JFROG_DOCKER_REPO}}/$ {{ env.PROJECT_NAME}}:latest
+      - name: Push Docker Image to JFrog Artifactory
+        run: |
+          docker push ${{ secrets.JFROG_DEMO_REGISTRY }}/${{ env.JFROG_DOCKER_REPO}}/${{ needs.test_and_build.outputs.docker_image_tag }}   
+          docker push ${{ secrets.JFROG_DEMO_REGISTRY }}/${{ env.JFROG_DOCKER_REPO}}/${{ env.PROJECT_NAME}}:latest
