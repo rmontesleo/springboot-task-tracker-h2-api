@@ -133,7 +133,7 @@ jobs:
           
       - name: Load Docker Image
         run: |
-          docker load -i ./downloaded-artifacts/docker-image/$ {{ env.PROJECT_NAME}}.tar
+          docker load -i ./downloaded-artifacts/docker-image/${{ env.PROJECT_NAME}}.tar
           # Re-tag the image with the full JFrog repository path
           docker tag ${{ env.PROJECT_NAME }}:${{ needs.test_and_build.outputs.docker_image_tag }} ${{ secrets.JFROG_DEMO_REGISTRY }}/${{ env.JFROG_DOCKER_REPO}}/${{ env.PROJECT_NAME}}:${{ needs.test_and_build.outputs.docker_image_tag }}
           docker tag ${{ env.PROJECT_NAME }}:${{ needs.test_and_build.outputs.docker_image_tag }} ${{ secrets.JFROG_DEMO_REGISTRY }}/${{ env.JFROG_DOCKER_REPO}}/${{ env.PROJECT_NAME}}:latest
