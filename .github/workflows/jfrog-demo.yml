@@ -69,6 +69,7 @@ jobs:
             context: .
             file: ${{ env.DOCKERFILE_PATH }}
             push: false # Only build locally
+            load: true # Load the image into Docker
             tags: ${{ env.PROJECT_NAME }}:${{ github.sha }}
 
         - name: List Docker Images
