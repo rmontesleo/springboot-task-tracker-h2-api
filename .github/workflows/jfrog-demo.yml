@@ -71,7 +71,7 @@ jobs:
           uses: actions/upload-artifact@v4
           with:
             name: $ {{ env.PROJECT_NAME}}-jar
-            path: target/$ {{ steps.get-jar-name.outputs.jar_name }}
+            path: target/${{ steps.get-jar-name.outputs.jar_name }}
             retention-days: 7
 
         #- name: Upload Docker Image Tarball Artifact
