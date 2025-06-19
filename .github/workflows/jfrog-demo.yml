@@ -64,19 +64,19 @@ jobs:
             tags: ${{ env.PROJECT_NAME }}:${{ github.sha }}
           
 
-        - name: Export Docker Image to Tar (for subsequent jobs)
-          run: docker save ${{ env.PROJECT_NAME }}:${{ github.sha}} -o ${{ env.PROJECT_NAME}}.tar
+        #- name: Export Docker Image to Tar (for subsequent jobs)
+        #  run: docker save $ {{ env.PROJECT_NAME }}:$ {{ github.sha}} -o $ {{ env.PROJECT_NAME}}.tar
 
         - name: Upload JAR Artifact
           uses: actions/upload-artifact@v4
           with:
-            name: ${{ env.PROJECT_NAME}}-jar
-            path: target/${{ steps.get-jar-name.outputs.jar_name }}
+            name: $ {{ env.PROJECT_NAME}}-jar
+            path: target/$ {{ steps.get-jar-name.outputs.jar_name }}
             retention-days: 7
 
-        - name: Upload Docker Image Tarball Artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: ${{ env.PROJECT_NAME }}-docker-image
-            path: .
-            retention-days: 7
+        #- name: Upload Docker Image Tarball Artifact
+        #  uses: actions/upload-artifact@v4
+        #  with:
+        #    name: $ {{ env.PROJECT_NAME }}-docker-image
+        #    path: .
+        #    retention-days: 7
