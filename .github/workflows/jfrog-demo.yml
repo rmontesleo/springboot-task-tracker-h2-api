@@ -70,6 +70,9 @@ jobs:
             file: ${{ env.DOCKERFILE_PATH }}
             push: false # Only build locally
             tags: ${{ env.PROJECT_NAME }}:${{ github.sha }}
+
+        - name: List Docker Images
+          run: docker images    
           
 
         - name: Export Docker Image to Tar (for subsequent jobs)
