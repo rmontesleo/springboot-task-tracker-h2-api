@@ -37,7 +37,7 @@ jobs:
           id: get-version
           run: |
             PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-            echo "project_version=$PROJECTVSION" >> $GITHUB_OUTPUT
+            echo "project_version=$PROJECT_VERSION" >> $GITHUB_OUTPUT
             echo "Discovered project version: $PROJECT_VERSION"
 
         - name: Build Maven Project and Get JAR Name

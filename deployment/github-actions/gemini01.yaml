@@ -1,0 +1,240 @@
+name: Java CI/CD with Scanning & Deployment
+
+on:
+  push:
+    branches:
+      - main # Or your default branch like 'master'
+
+env:
+  # Define common environment variables
+  JAVA_VERSION: '21'
+  PROJECT_NAME: 'my-springboot-app' # Replace with your project's artifactId or desired name
+  DOCKERFILE_PATH: 'docker/Dockerfile' # Path to your Dockerfile
+  JFROG_DOCKER_REPO: 'your-docker-repo' # e.g., 'my-docker-local' in Artifactory
+  JFROG_MAVEN_REPO: 'your-maven-repo' # e.g., 'libs-release-local' or 'libs-snapshot-local'
+
+jobs:
+  # Job 1: Build, Test, and Scan (Parallel Execution)
+  build-test-scan:
+    runs-on: ubuntu-latest
+
+    # Define outputs to be used by subsequent jobs (e.g., the JAR file name)
+    outputs:
+      jar_file_name: ${{ steps.get-jar-name.outputs.jar_name }}
+      docker_image_tag: ${{ steps.build-image.outputs.tag }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for SonarQube analysis
+
+      - name: Set up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'maven' # Cache Maven dependencies
+
+      - name: Get Maven Project Version
+        id: get-version
+        run: |
+          # Extract project version from pom.xml
+          PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "PROJECT_VERSION=$PROJECT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Discovered project version: $PROJECT_VERSION"
+
+      - name: Get JAR File Name
+        id: get-jar-name
+        run: |
+          # Build the project to get the exact JAR file name
+          mvn clean package -DskipTests # Build without tests, as tests run in a separate step
+          JAR_NAME=$(ls target/*.jar | head -n 1 | xargs -n 1 basename)
+          echo "jar_name=$JAR_NAME" >> "$GITHUB_OUTPUT"
+          echo "Discovered JAR name: $JAR_NAME"
+
+      - name: Execute Unit Tests
+        run: mvn test
+        env:
+          MAVEN_OPTS: -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.count=3 # Optional: retry HTTP requests for stability
+        working-directory: . # Ensure this is the root of your Maven project
+        # You can add a step to publish test results if you have a test reporter configured
+        # - name: Publish Test Results
+        #   uses: mikepenz/action-junit-report@v4
+        #   if: always() # Run even if tests fail
+        #   with:
+        #     report_paths: '**/surefire-reports/TEST-*.xml' # Adjust path as per your project
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image
+        id: build-image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ env.DOCKERFILE_PATH }}
+          push: false # Do not push to registry yet, only build
+          tags: ${{ env.PROJECT_NAME }}:${{ github.sha }} # Tag the image locally
+          # Set the output tag for the next job
+          outputs: |
+            type=raw,name=latest,enable=true
+            type=raw,name=${{ env.PROJECT_NAME }}:${{ github.sha }},enable=true
+        env:
+          # Ensure Docker Scout can access the image by setting the environment
+          DOCKER_BUILDKIT: 1
+
+      - name: Docker Scout Scan (Image Vulnerability & SBOM)
+        run: |
+          # Assuming Docker Scout CLI is available in the runner, or use a dedicated action
+          # It uses the locally built image
+          echo "Running Docker Scout scan on ${{ env.PROJECT_NAME }}:${{ github.sha }}"
+          docker scout quickscan ${{ env.PROJECT_NAME }}:${{ github.sha }} --format json > docker_scout_report.json
+        # The 'docker/scout-action' might be an option if you prefer an action:
+        # - name: Docker Scout Scan (alternative action)
+        #   uses: docker/scout-action@v1
+        #   with:
+        #     image: ${{ env.PROJECT_NAME }}:${{ github.sha }}
+        #     output: trivy_results.json # Adjust output format/filename as needed
+
+      - name: Set up Snyk
+        uses: snyk/actions/setup@master
+
+      - name: Snyk SCA Scan (Open Source Vulnerabilities)
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          # Use Snyk Maven plugin for SCA scan
+          # The --json flag outputs results in JSON format
+          snyk test --maven-project --file=pom.xml --json > snyk_sca_report.json
+        continue-on-error: true # Allow workflow to continue even if vulnerabilities are found
+
+      - name: Snyk SAST Scan (Code Vulnerabilities)
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          # Run Snyk SAST scan on your project directory
+          # The --json flag outputs results in JSON format
+          snyk code test --json > snyk_sast_report.json
+        continue-on-error: true # Allow workflow to continue even if vulnerabilities are found
+
+      - name: SonarQube Scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if analyzing a PR
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=${{ env.PROJECT_NAME }} \
+            -Dsonar.host.url=${{ env.SONAR_HOST_URL }} \
+            -Dsonar.token=${{ env.SONAR_TOKEN }} \
+            -Dsonar.java.binaries=target/classes # Ensure Sonar finds compiled classes
+
+      - name: Aqua Trivy Scan (Filesystem and Image Vulnerabilities)
+        uses: aquasecurity/trivy-action@master
+        with:
+          # Scan the filesystem for common vulnerabilities (dependencies, config files, etc.)
+          scan-type: 'fs'
+          format: 'json'
+          output: 'trivy_fs_report.json'
+          severity: 'HIGH,CRITICAL' # Only report high/critical for filesystem
+
+      - name: Aqua Trivy Image Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          # Scan the built Docker image for vulnerabilities
+          image-ref: '${{ env.PROJECT_NAME }}:${{ github.sha }}'
+          format: 'json'
+          output: 'trivy_image_report.json'
+          severity: 'HIGH,CRITICAL'
+
+      - name: Upload Scan Reports as Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-reports
+          path: |
+            snyk_sca_report.json
+            snyk_sast_report.json
+            trivy_fs_report.json
+            trivy_image_report.json
+            docker_scout_report.json
+          retention-days: 5 # How long to keep the artifacts
+
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-jar
+          path: target/${{ steps.get-jar-name.outputs.jar_name }}
+          retention-days: 7
+
+      - name: Export Docker Image (for next job)
+        run: |
+          # Save the Docker image as a tarball so it can be passed to the next job
+          docker save ${{ env.PROJECT_NAME }}:${{ github.sha }} -o ${{ env.PROJECT_NAME }}.tar
+        env:
+          DOCKER_BUILDKIT: 1 # Ensure Docker is running in buildkit mode for this command
+
+      - name: Upload Docker Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-docker-image
+          path: ${{ env.PROJECT_NAME }}.tar
+          retention-days: 7
+
+  # Job 2: Deploy Artifacts
+  deploy-artifacts:
+    runs-on: ubuntu-latest
+    needs: build-test-scan # This job runs only after build-test-scan completes successfully
+
+    steps:
+      - name: Checkout Code (for context if needed, though mostly using artifacts)
+        uses: actions/checkout@v4
+
+      - name: Download JAR Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-jar
+          path: ./downloaded-artifacts/jar/
+
+      - name: Download Docker Image Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-docker-image
+          path: ./downloaded-artifacts/docker-image/
+
+      - name: Log in to JFrog Artifactory Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.JFROG_DOCKER_REGISTRY }}
+          username: ${{ secrets.JFROG_USER }}
+          password: ${{ secrets.JFROG_PASSWORD }}
+
+      - name: Load Docker Image
+        run: |
+          docker load -i ./downloaded-artifacts/docker-image/${{ env.PROJECT_NAME }}.tar
+          # Re-tag the image with the full JFrog repository path
+          docker tag ${{ env.PROJECT_NAME }}:${{ github.sha }} ${{ secrets.JFROG_DOCKER_REGISTRY }}/${{ env.JFROG_DOCKER_REPO }}/${{ env.PROJECT_NAME }}:${{ github.sha }}
+
+      - name: Push Docker Image to JFrog Artifactory
+        run: |
+          docker push ${{ secrets.JFROG_DOCKER_REGISTRY }}/${{ env.JFROG_DOCKER_REPO }}/${{ env.PROJECT_NAME }}:${{ github.sha }}
+          # Push with 'latest' tag as well, if desired
+          docker tag ${{ env.PROJECT_NAME }}:${{ github.sha }} ${{ secrets.JFROG_DOCKER_REGISTRY }}/${{ env.JFROG_DOCKER_REPO }}/${{ env.PROJECT_NAME }}:latest
+          docker push ${{ secrets.JFROG_DOCKER_REGISTRY }}/${{ env.JFROG_DOCKER_REPO }}/${{ env.PROJECT_NAME }}:latest
+
+      - name: Upload JAR to JFrog Artifactory
+        run: |
+          # Get the full path to the downloaded JAR file
+          JAR_PATH="./downloaded-artifacts/jar/${{ needs.build-test-scan.outputs.jar_file_name }}"
+          PROJECT_VERSION="${{ steps.get-version.outputs.PROJECT_VERSION }}" # Get version from previous job if needed
+          
+          # Use curl to upload to Artifactory's Maven repository
+          # Adjust the path (groupId/artifactId/version/filename) as per your Maven coordinates
+          curl -u ${{ secrets.JFROG_USER }}:${{ secrets.JFROG_PASSWORD }} \
+               -X PUT "${{ secrets.JFROG_ARTIFACTORY_URL }}/${{ env.JFROG_MAVEN_REPO }}/com/example/${{ env.PROJECT_NAME }}/${{ github.sha }}/${{ needs.build-test-scan.outputs.jar_file_name }}" \
+               --upload-file "$JAR_PATH"
+        env:
+          # Use outputs from the previous job to construct the full JAR path and version in the Artifactory URL
+          PROJECT_VERSION: ${{ needs.build-test-scan.outputs.PROJECT_VERSION }}
+          JAR_FILE_NAME: ${{ needs.build-test-scan.outputs.jar_file_name }}
+
